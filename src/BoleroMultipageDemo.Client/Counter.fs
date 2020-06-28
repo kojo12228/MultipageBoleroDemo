@@ -35,7 +35,7 @@ let update remote message model =
 
 type Counter = Template<"wwwroot/counter.html">
 
-let counterPage model dispatch =
+let view model dispatch =
     Counter()
         .Decrement(fun _ -> dispatch Decrement)
         .Increment(fun _ -> dispatch Increment)

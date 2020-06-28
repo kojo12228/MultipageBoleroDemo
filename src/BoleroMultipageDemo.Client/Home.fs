@@ -19,5 +19,5 @@ type Msg = unit
 
 type Home = Template<"wwwroot/home.html">
 
-let homePage model dispatch =
+let view model dispatch =
     Home().Elt()
