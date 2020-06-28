@@ -37,6 +37,7 @@ let initModel =
 /// The Elmish application's update messages.
 type Message =
     | SetPage of Page
+    | HomeMessage of Home.Msg
     | CounterMessage of Counter.Msg
     | DataMessage of Data.Msg
 
@@ -47,6 +48,9 @@ let update remote message model =
     match message with
     | SetPage page ->
         { model with page = page }, Cmd.none
+    | HomeMessage msg ->
+        let homeModel, cmd = Home.update remote msg model.homeModel
+        { model with homeModel = homeModel }, Cmd.map HomeMessage cmd
     | CounterMessage msg ->
         let counterModel, cmd = Counter.update remote msg model.counterModel
         { model with counterModel = counterModel }, Cmd.map CounterMessage cmd
@@ -67,6 +71,8 @@ let menuItem (model: Model) (page: Page) (text: string) =
         .Elt()
 
 let view model dispatch =
+    let mapDispatch msgWrapper = msgWrapper >> dispatch
+
     Main()
         .Menu(concat [
             menuItem model Home "Home"
@@ -75,13 +81,12 @@ let view model dispatch =
         ])
         .Body(
             cond model.page <| function
-            | Home -> Home.view model.homeModel dispatch
+            | Home ->
+                Home.view model.homeModel (mapDispatch HomeMessage)
             | Counter ->
-                let dispatch' msg = dispatch (CounterMessage msg)
-                Counter.view model.counterModel dispatch'
+                Counter.view model.counterModel (mapDispatch CounterMessage)
             | Data ->
-                let dispatch' msg = dispatch (DataMessage msg)
-                Data.view model.dataModel dispatch'
+                Data.view model.dataModel (mapDispatch DataMessage)
         )
         .Elt()
 

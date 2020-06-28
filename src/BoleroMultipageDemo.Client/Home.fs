@@ -13,9 +13,10 @@ type Model = unit
 
 let initModel = ()
 
-let init() = (), Cmd.none
-
 type Msg = unit
+
+let update remote message model =
+    model, Cmd.none
 
 type Home = Template<"wwwroot/home.html">
 
