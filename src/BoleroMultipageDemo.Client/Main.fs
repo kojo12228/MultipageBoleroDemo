@@ -9,6 +9,8 @@ open Bolero.Remoting
 open Bolero.Remoting.Client
 open Bolero.Templating.Client
 
+open BoleroMultipageDemo.Client
+
 /// Routing endpoints definition.
 type Page =
     | [<EndPoint "/">] Home
@@ -19,7 +21,8 @@ type Page =
 type Model =
     {
         page: Page
-        counter: int
+        homeModel: Home.Model
+        counterModel: Counter.Model
         books: Book[] option
         error: string option
         username: string
@@ -40,7 +43,8 @@ and Book =
 let initModel =
     {
         page = Home
-        counter = 0
+        homeModel = Home.initModel
+        counterModel = Counter.initModel
         books = None
         error = None
         username = ""
@@ -77,9 +81,7 @@ type BookService =
 /// The Elmish application's update messages.
 type Message =
     | SetPage of Page
-    | Increment
-    | Decrement
-    | SetCounter of int
+    | CounterMessage of Counter.Msg
     | GetBooks
     | GotBooks of Book[]
     | SetUsername of string
@@ -101,12 +103,9 @@ let update remote message model =
     | SetPage page ->
         { model with page = page }, Cmd.none
 
-    | Increment ->
-        { model with counter = model.counter + 1 }, Cmd.none
-    | Decrement ->
-        { model with counter = model.counter - 1 }, Cmd.none
-    | SetCounter value ->
-        { model with counter = value }, Cmd.none
+    | CounterMessage msg ->
+        let counterModel, cmd = Counter.update remote msg model.counterModel
+        { model with counterModel = counterModel }, cmd
 
     | GetBooks ->
         let cmd = Cmd.ofAsync remote.getBooks () GotBooks Error
@@ -142,16 +141,6 @@ let update remote message model =
 let router = Router.infer SetPage (fun model -> model.page)
 
 type Main = Template<"wwwroot/main.html">
-
-let homePage model dispatch =
-    Main.Home().Elt()
-
-let counterPage model dispatch =
-    Main.Counter()
-        .Decrement(fun _ -> dispatch Decrement)
-        .Increment(fun _ -> dispatch Increment)
-        .Value(model.counter, fun v -> dispatch (SetCounter v))
-        .Elt()
 
 let dataPage model (username: string) dispatch =
     Main.Data()
@@ -203,8 +192,10 @@ let view model dispatch =
         ])
         .Body(
             cond model.page <| function
-            | Home -> homePage model dispatch
-            | Counter -> counterPage model dispatch
+            | Home -> Home.homePage model.homeModel dispatch
+            | Counter ->
+                let dispatch' msg = dispatch (CounterMessage msg)
+                Counter.counterPage model.counterModel dispatch'
             | Data ->
                 cond model.signedInAs <| function
                 | Some username -> dataPage model username dispatch
