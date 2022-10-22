@@ -4,6 +4,6 @@ This is a simple proof of concept project to take the [Bolero template](https://
 
 The methodology is heavily inspired by notes from the Elmish project on ["parent-child composition"](https://elmish.github.io/elmish/index.html) with a [minimal example project](https://elmish.github.io/elmish/parent-child.html).
 
-Requires .NET Core 3.1 or higher.
+Requires .NET 6.0 or higher.
 
 See [fsbolero.io](https://fsbolero.io/) and [elmish.github.io](https://elmish.github.io/elmish/index.html) for more notes.
