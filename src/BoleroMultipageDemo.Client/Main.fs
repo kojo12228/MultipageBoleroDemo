@@ -4,7 +4,6 @@ open System
 open Elmish
 open Bolero
 open Bolero.Html
-open Bolero.Json
 open Bolero.Remoting
 open Bolero.Remoting.Client
 open Bolero.Templating.Client
@@ -74,11 +73,11 @@ let view model dispatch =
     let mapDispatch msgWrapper = msgWrapper >> dispatch
 
     Main()
-        .Menu(concat [
+        .Menu(concat {
             menuItem model Home "Home"
             menuItem model Counter "Counter"
             menuItem model Data "Download data"
-        ])
+        })
         .Body(
             cond model.page <| function
             | Home ->

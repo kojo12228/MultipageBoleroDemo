@@ -2,6 +2,8 @@ namespace BoleroMultipageDemo.Server
 
 open System
 open System.IO
+open System.Text.Json
+open System.Text.Json.Serialization
 open Microsoft.AspNetCore.Hosting
 open Bolero
 open Bolero.Remoting
@@ -14,7 +16,7 @@ type BookService(ctx: IRemoteContext, env: IWebHostEnvironment) =
     let books =
         Path.Combine(env.ContentRootPath, "data/books.json")
         |> File.ReadAllText
-        |> Json.Deserialize<Client.Data.Book[]>
+        |> JsonSerializer.Deserialize<Client.Data.Book[]>
         |> ResizeArray
 
     override this.Handler =
